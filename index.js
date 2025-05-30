@@ -18,14 +18,7 @@ app.listen(port, () =>{  //Aqui puedo escribir el número de puerto directamente
 
 //Ahora haré algunos endpoints:
 
-//GET para listar los productos
-app.get('/', (req, res) => {  //req es petición y res es respuesta
-    res.status(200).json({  //Con esto le estoy diciendo que en codigo 200 arroje ese mensaje
-        "mensaje": "Hola express"
-    })
-})
-
-//GET para la conexión con BD
+//GET para listar los productos conectado a BD
 app.get('/productos', async (req, res) => { 
     let cone  //Creo una variable
     try{  //Esto es para controlar posibles errores
@@ -46,3 +39,21 @@ app.get('/productos', async (req, res) => {
         if (cone) await cone.close()  //Con esto cierro la conexión 
     }
 })
+
+//GET de prueba, para confirmar si la conexión está activa
+app.get('/ping', async (req, res) => {
+    let cone  //Creo una variable
+    try {  //Esto es para controlar posibles errores
+        cone = await oracledb.getConnection(dbConfig)  //aqui le digo que haga una conexión con oracle utilizando los datos de config que le di mas arriba
+        const result = await cone.execute('SELECT 1 FROM dual')  //Esto es lo que devuelve después de hacer la conexión y aqui le doy el select que necesito de la BD
+        res.status(200).json({  //Aca le digo que si funciona de un mensaje en respuesta a codigo 200
+            mensaje: "Conexión a Oracle exitosa"
+        })
+    } catch (ex) {
+        res.status(500).json({  //Con esto le digo que mande un error 500 de haber error
+            error: "Error en conexión con Oracle", detalle: ex.message
+        })
+    } finally{
+        if (cone) await cone.close()  //Con esto cierro la conexión
+    }
+});
