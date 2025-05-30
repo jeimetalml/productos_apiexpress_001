@@ -1,0 +1,14 @@
+# Ignorar la carpeta donde se instalan todas las dependencias
+node_modules/
+
+# Ignorar los logs de npm y otros
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Ignorar entornos temporales
+.env
+
+# Ignorar archivos del sistema o editores
+.DS_Store
+.vscode/
