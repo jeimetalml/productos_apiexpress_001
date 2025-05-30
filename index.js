@@ -1,6 +1,6 @@
 const express = require('express')  //Esta es la librería que necesitamos
 const oracledb = require('oracledb')  //Con esto puedo usar la librería para oracle
-//oracledb.initOracleClient({ libDir: 'C:\oraclexe\app\oracle\instantclient_23_8' }) // Usa la ruta donde descomprimiste
+oracledb.initOracleClient({ libDir: 'C:\\oraclexe\\app\\oracle\\instantclient_23_8' }) // Usa la ruta donde descomprimiste
 const app = express()  //Aqui creamos la variable de la API
 const port = 3000  //Aqui le asignamos el puerto a la API
 const dbConfig = {  //Aqui creamos los datos para la conexión con la BD
