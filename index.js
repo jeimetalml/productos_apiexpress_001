@@ -47,6 +47,35 @@ app.get('/productos', async (req, res) => {
     }
 })
 
+//GET para obtener un producto por su ID
+app.get('/productos/:id', async (req, res) => {
+    const { id } = req.params  //Con esto capturo el ID desde la URL
+    let cone  //Aqui creo una variable
+    try {
+        cone = await oracledb.getConnection(dbConfig)  //aqui le digo que haga una conexión con oracle utilizando los datos de config que le di mas arriba
+        const result = await cone.execute("SELECT * FROM productos WHERE id_producto = :id", [id])  //Esto es lo que devuelve después de hacer la conexión y aqui le doy el select que necesito de la BD
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                error: "Producto no encontrado"
+            })  //Con esto le digo que mande un error 400 de haber error
+        }
+
+        const row = result.rows[0]  //COn esto le digo que tome la primera fila
+        res.json({
+            id_producto: row[0],
+            ruta_imagen_producto: row[1],
+            nombre_producto: row[2],
+            descripcion_producto: row[3],
+            precio_producto: row[4]
+        })  //Respuesta JSON con el producto encontrado
+    } catch (ex) {
+        res.status(500).json({ error: "Error al obtener producto", detalle: ex.message })  //Con esto le digo que mande un error 500 de haber error
+    } finally {
+        if (cone) await cone.close()  //COn esto cierro la conexión
+    }
+})
+
 //GET de prueba, para confirmar si la conexión está activa
 app.get('/ping', async (req, res) => {
     let cone  //Creo una variable
