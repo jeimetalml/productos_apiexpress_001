@@ -71,7 +71,7 @@ app.post('/productos', async (req, res) => {
     let cone  //CReo una variable
     try {  //Esto es para controlar posibles errores
         cone = await oracledb.getConnection(dbConfig)  //aqui le digo que haga una conexión con oracle utilizando los datos de config que le di mas arriba
-        await cone.execute(  //Esto es lo que devuelve después de hacer la conexión y aqui le doy el select que necesito de la BD y donde insertar los valores del nuevo producto
+        const result = await cone.execute(  //Esto es lo que devuelve después de hacer la conexión y aqui le doy el select que necesito de la BD y donde insertar los valores del nuevo producto
             `INSERT INTO productos (id_producto, ruta_imagen_producto, nombre_producto, descripcion_producto, precio_producto)
              VALUES (:id, :ruta, :nombre, :descripcion, :precio)`,
             {
@@ -89,6 +89,41 @@ app.post('/productos', async (req, res) => {
     } catch (ex) {
         res.status(500).json({
             error: "Error al agregar producto: ", detalle: ex.message
+        })  //Con esto le digo que mande un error 500 de haber error
+    } finally {
+        if (cone) await cone.close()  //Con esto cierro la conexión
+    }
+})
+
+//PUT para modificar todo el prducto
+app.put('/productos/:id', async (req, res) => {
+    const { id } = req.params
+    const { ruta_imagen_producto, nombre_producto, descripcion_producto, precio_producto } = req.body
+    let cone  //Creo una variable
+    try {  //Esto es para controlar posibles errores
+        cone = await oracledb.getConnection(dbConfig)  //aqui le digo que haga una conexión con oracle utilizando los datos de config que le di mas arriba
+        const result = await cone.execute( //Esto es lo que devuelve después de hacer la conexión y aqui le doy los datos que necesito actualizar de la BD y donde insertar los valores de la modificación
+            `UPDATE productos
+             SET ruta_imagen_producto = :ruta,
+                 nombre_producto = :nombre,
+                 descripcion_producto = :descripcion,
+                 precio_producto = :precio
+             WHERE id_producto = :id`,
+            {
+                id,
+                ruta: ruta_imagen_producto,
+                nombre: nombre_producto,
+                descripcion: descripcion_producto,
+                precio: precio_producto
+            },
+            { autoCommit: true }
+        )
+        res.status(200).json({
+            mensaje: "Producto modificado correctamente"
+        })  //Aca le digo que si funciona de un mensaje en respuesta a codigo 200
+    } catch (ex) {
+        res.status(500).json({
+            error: "Error al modificar producto: ", detalle: ex.message
         })  //Con esto le digo que mande un error 500 de haber error
     } finally {
         if (cone) await cone.close()  //Con esto cierro la conexión
