@@ -11,6 +11,7 @@
   "author": "Jeison Padilla",
   "license": "ISC",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^5.1.0",
     "oracledb": "^6.8.0"
   },

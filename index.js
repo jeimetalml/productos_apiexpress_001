@@ -1,15 +1,22 @@
 const express = require('express')  //Esta es la librería que necesitamos
 const oracledb = require('oracledb')  //Con esto puedo usar la librería para oracle
-oracledb.initOracleClient({ libDir: 'C:\\oraclexe\\app\\oracle\\instantclient_23_8' }) // Usa la ruta donde descomprimiste
+const cors = require('cors')  //IMportamos cors
+
+oracledb.initOracleClient({ libDir: 'C:\\oraclexe\\app\\oracle\\instantclient_23_8' }) // Usa la ruta donde descomprimiste el instant cliente
+
 const app = express()  //Aqui creamos la variable de la API
 const port = 3000  //Aqui le asignamos el puerto a la API
+
+app.use(cors())  //Con esto activamos cors
+app.use(express.json())  //Con esto configuramos usos de la API, se pueden poner todos los que quiera
+
 const dbConfig = {  //Aqui creamos los datos para la conexión con la BD
     user: 'integracion',   //Nombre usuario BD
     password: 'integracion',   //Clave usuario BD
     connectString: 'localhost/XE'  // aqui va localhost y después va el service_name
 }
 
-app.use(express.json())  //Con esto configuramos usos de la API, se pueden poner todos los que quiera
+
 
 //Con esto levantaré la API
 app.listen(port, () =>{  //Aqui puedo escribir el número de puerto directamente o poner "port que lo declaramos más arriba"
@@ -56,4 +63,4 @@ app.get('/ping', async (req, res) => {
     } finally{
         if (cone) await cone.close()  //Con esto cierro la conexión
     }
-});
+})
