@@ -94,6 +94,14 @@ app.get('/ping', async (req, res) => {
     }
 })
 
+//GET para verificar el estado de la API
+app.get('/status', (req, res) => {
+    res.status(200).json({  //Aca le digo que si funciona de un mensaje en respuesta a codigo 200
+        status: "API de productos funcionando correctamente"  //Este es el mensaje que confirma que está activa
+    })
+})
+
+
 //POST para agregar productos
 app.post('/productos', async (req, res) => {
     const { id_producto, ruta_imagen_producto, nombre_producto, descripcion_producto, precio_producto } = req.body
