@@ -97,7 +97,7 @@ app.post('/productos', async (req, res) => {
 
 //PUT para modificar todo el prducto
 app.put('/productos/:id', async (req, res) => {
-    const { id } = req.params
+    const { id } = req.params  //Con esto capturo el id que viene de la URL
     const { ruta_imagen_producto, nombre_producto, descripcion_producto, precio_producto } = req.body
     let cone  //Creo una variable
     try {  //Esto es para controlar posibles errores
@@ -132,7 +132,7 @@ app.put('/productos/:id', async (req, res) => {
 
 //DELETE para eliminar un producto
 app.delete('/productos/:id', async (req, res) => {
-    const { id } = req.params
+    const { id } = req.params  //Con esto capturo el id que viene de la URL
     let cone  //Creo una variable
     try {  //Esto es para controlar posibles errores
         cone = await oracledb.getConnection(dbConfig)  //aqui le digo que haga una conexión con oracle utilizando los datos de config que le di mas arriba
@@ -148,6 +148,41 @@ app.delete('/productos/:id', async (req, res) => {
         res.status(500).json({
             error: "Error al eliminar producto: ", detalle: ex.message
         })  //Con esto le digo que mande un error 500 de haber error
+    } finally {
+        if (cone) await cone.close()  //Con esto cierro la conexión
+    }
+})
+
+//PATCH para modificar un solo atributo de productos
+app.patch('/productos/:id', async (req, res) => {
+    const { id } = req.params  //Con esto capturo el id que viene de la URL
+    const campos = req.body  //Con esto capturo los datos que vienen en el body
+    let cone  //Aqui creo una variable
+    try {
+        cone = await oracledb.getConnection(dbConfig)  //aqui le digo que haga una conexión con oracle utilizando los datos de config que le di mas arriba
+
+        const camposKeys = Object.keys(campos)  //Con esto obtengo un arreglo con los nombres de los campos que vienen en el body
+        if (camposKeys.length === 0) {
+            return res.status(400).json({
+                error: "No se envió ningún campo para actualizar"
+            })
+        }   //Con esto le digo que mande un error 500 de haber error
+
+        const sets = camposKeys.map((key, index) => `${key} = :val${index}`).join(', ')  //con esto armo la parte de la BD que indica qué campos actualizar
+        const values = camposKeys.map((key) => campos[key])  //COn esto obtengo los valores los campos
+        values.push(id)  //Con esto agrego el id para usarlo en el where al final del arreglo
+
+        const sql = `UPDATE productos SET ${sets} WHERE id_producto = :val${camposKeys.length}`  //Esto es lo que devuelve después de hacer la conexión y aqui le doy el dato que q quiero actualizar de la BD y donde insertar el valor de la modificación
+
+        const result = await cone.execute(sql, values, { autoCommit: true })   //Con esto ejecuto la BD y confirmo los cambios automáticamente
+
+        res.status(200).json({
+            mensaje: "Producto modificado correctamente"
+        })   //Aca le digo que si funciona de un mensaje en respuesta a codigo 200
+    } catch (ex) {
+        res.status(500).json({
+            error: "Error al modificar producto: ", detalle: ex.message
+        })   //Con esto le digo que mande un error 500 de haber error
     } finally {
         if (cone) await cone.close()  //Con esto cierro la conexión
     }
