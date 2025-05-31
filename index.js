@@ -40,7 +40,7 @@ app.get('/productos', async (req, res) => {
         })))  //Aqui le digo que la respueten json vendra del resultado pero en listas y con map mapeo el resultado
     } catch (ex) {
         res.status(500).json({  //Con esto le digo que mande un error 500 de haber error
-            error: ex.message
+            error: "Error de servidor", detalle: ex.message
         })
     } finally{
         if (cone) await cone.close()  //Con esto cierro la conexión 
@@ -64,3 +64,34 @@ app.get('/ping', async (req, res) => {
         if (cone) await cone.close()  //Con esto cierro la conexión
     }
 })
+
+//POST para agregar productos
+app.post('/productos', async (req, res) => {
+    const { id_producto, ruta_imagen_producto, nombre_producto, descripcion_producto, precio_producto } = req.body
+    let cone  //CReo una variable
+    try {  //Esto es para controlar posibles errores
+        cone = await oracledb.getConnection(dbConfig)  //aqui le digo que haga una conexión con oracle utilizando los datos de config que le di mas arriba
+        await cone.execute(  //Esto es lo que devuelve después de hacer la conexión y aqui le doy el select que necesito de la BD y donde insertar los valores del nuevo producto
+            `INSERT INTO productos (id_producto, ruta_imagen_producto, nombre_producto, descripcion_producto, precio_producto)
+             VALUES (:id, :ruta, :nombre, :descripcion, :precio)`,
+            {
+                id: id_producto,
+                ruta: ruta_imagen_producto,
+                nombre: nombre_producto,
+                descripcion: descripcion_producto,
+                precio: precio_producto
+            },
+            { autoCommit: true }
+        )
+        res.status(201).json({
+            mensaje: "Producto agregado correctamente"
+        })  //Aca le digo que si funciona de un mensaje en respuesta a codigo 201
+    } catch (ex) {
+        res.status(500).json({
+            error: "Error al agregar producto: ", detalle: ex.message
+        })  //Con esto le digo que mande un error 500 de haber error
+    } finally {
+        if (cone) await cone.close()  //Con esto cierro la conexión
+    }
+})
+
