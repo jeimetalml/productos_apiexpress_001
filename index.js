@@ -130,3 +130,26 @@ app.put('/productos/:id', async (req, res) => {
     }
 })
 
+//DELETE para eliminar un producto
+app.delete('/productos/:id', async (req, res) => {
+    const { id } = req.params
+    let cone  //Creo una variable
+    try {  //Esto es para controlar posibles errores
+        cone = await oracledb.getConnection(dbConfig)  //aqui le digo que haga una conexión con oracle utilizando los datos de config que le di mas arriba
+        const result = await cone.execute(
+            `DELETE FROM productos WHERE id_producto = :id`,  //Esto es lo que devuelve después de hacer la conexión y aqui le digo que eliminar
+            [id],
+            { autoCommit: true }
+        )
+        res.status(200).json({
+            mensaje: "Producto eliminado correctamente"
+        })  //Aca le digo que si funciona de un mensaje en respuesta a codigo 200
+    } catch (ex) {
+        res.status(500).json({
+            error: "Error al eliminar producto: ", detalle: ex.message
+        })  //Con esto le digo que mande un error 500 de haber error
+    } finally {
+        if (cone) await cone.close()  //Con esto cierro la conexión
+    }
+})
+
