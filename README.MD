@@ -97,7 +97,7 @@ En tu archivo `index.js`, edita los valores en:
 const dbConfig = {
   user: 'tu_usuario',
   password: 'tu_contraseña',
-  connectString: 'localhost/XE'
+  connectString: 'localhost/ tu service_name'
 }
 
 oracledb.initOracleClient({
