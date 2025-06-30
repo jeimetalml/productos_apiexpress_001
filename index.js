@@ -106,9 +106,14 @@ app.get('/status', (req, res) => {
 app.post('/productos', async (req, res) => {
     const { id_producto, ruta_imagen_producto, nombre_producto, descripcion_producto, precio_producto } = req.body
     let cone  //CReo una variable
-    if (isNaN(id_producto) || Number(id_producto) <= 0) { //Esto es para confirmar que el id sea positivo
+    if (id_producto < 0) { //Esto es para confirmar que el id sea positivo
         return res.status(400).json({
-            error: "ID de producto inválido. Debe ser un número positivo."
+            error: "El ID del producto debe ser un número positivo"
+        })
+    }
+    if (precio_producto < 0) { //Esto es para confirmar que el precio sea positivo
+        return res.status(400).json({
+            error: "El precio del producto debe ser un número positivo"
         })
     }
     try {  //Esto es para controlar posibles errores
@@ -142,11 +147,17 @@ app.put('/productos/:id', async (req, res) => {
     const { id } = req.params  //Con esto capturo el id que viene de la URL
     const { ruta_imagen_producto, nombre_producto, descripcion_producto, precio_producto } = req.body
     let cone  //Creo una variable
-    if (isNaN(id) || Number(id) <= 0) { //Esto es para confirmar que el id sea positivo
+    if (id_producto < 0) { //Esto es para confirmar que el id sea positivo
         return res.status(400).json({
-            error: "ID de producto inválido. Debe ser un número positivo."
+            error: "El ID del producto debe ser un número positivo"
         })
     }
+    if (precio_producto < 0) { //Esto es para confirmar que el precio sea positivo
+        return res.status(400).json({
+            error: "El precio del producto debe ser un número positivo"
+        })
+    }
+
     try {  //Esto es para controlar posibles errores
         cone = await oracledb.getConnection(dbConfig)  //aqui le digo que haga una conexión con oracle utilizando los datos de config que le di mas arriba
         const result = await cone.execute( //Esto es lo que devuelve después de hacer la conexión y aqui le doy los datos que necesito actualizar de la BD y donde insertar los valores de la modificación
@@ -205,9 +216,14 @@ app.patch('/productos/:id', async (req, res) => {
     const { id } = req.params  //Con esto capturo el id que viene de la URL
     const campos = req.body  //Con esto capturo los datos que vienen en el body
     let cone  //Aqui creo una variable
-    if (isNaN(id) || Number(id) <= 0) { //Esto es para confirmar que el id sea positivo
+    if (id_producto < 0) { //Esto es para confirmar que el id sea positivo
         return res.status(400).json({
-            error: "ID de producto inválido. Debe ser un número positivo."
+            error: "El ID del producto debe ser un número positivo"
+        })
+    }
+    if ('precio_producto' in campos && campos.precio_producto < 0) { //Esto es para confirmar que el precio sea positivo
+        return res.status(400).json({
+            error: "El precio del producto debe ser un número positivo"
         })
     }
     try {
