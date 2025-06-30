@@ -190,7 +190,17 @@ app.put('/productos/:id', async (req, res) => {
 
 //DELETE para eliminar un producto
 app.delete('/productos/:id', async (req, res) => {
-    const { id } = req.params  //Con esto capturo el id que viene de la URL
+    const idStr = req.params.id
+
+    // Validar que el id sea solo dígitos y tenga máximo 10 caracteres
+    if (!/^\d{1,10}$/.test(idStr)) {
+        return res.status(400).json({
+            error: "ID inválido. El ID debe ser un número entero positivo con máximo 10 dígitos."
+        })
+    }
+
+    const id = Number(idStr)
+
     let cone  //Creo una variable
     try {  //Esto es para controlar posibles errores
         cone = await oracledb.getConnection(dbConfig)  //aqui le digo que haga una conexión con oracle utilizando los datos de config que le di mas arriba
@@ -199,6 +209,9 @@ app.delete('/productos/:id', async (req, res) => {
             [id],
             { autoCommit: true }
         )
+        if (result.rowsAffected === 0) {
+            return res.status(404).json({ error: "Producto no encontrado" })
+        }
         res.status(200).json({
             mensaje: "Producto eliminado correctamente"
         })  //Aca le digo que si funciona de un mensaje en respuesta a codigo 200
